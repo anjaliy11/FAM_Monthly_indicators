@@ -1,4 +1,4 @@
-![CI](https://github.com/anjaliy11/FAM_Monthly_indicators/actions/workflows/ci.yml/badge.svg)
+  [![CI](https://github.com/anjaliy11/FAM_Monthly_indicators/actions/workflows/ci.yml/badge.svg)](https://github.com/anjaliy11/FAM_Monthly_indicators/actions/workflows/ci.yml)
 
 # Monthly OHLC + Technical Indicators Pipeline
 
@@ -6,11 +6,11 @@ Transforms daily stock prices (10 tickers, 2018-2019) into monthly OHLC bars wit
 
 - **Input:** `data/input.csv` (5,030 daily rows: `date, volume, open, high, low, close, adjclose, ticker`)
 - **Output:** `output/result_{SYMBOL}.csv`, 10 files, 24 rows each (2018-01 to 2019-12)
-- **Stack:** Python 3.11 and **pandas only** at runtime. No TA libraries; vectorized (`groupby`, `agg`, `rolling`, `ewm`), no row loops.
+- **Stack:** Python 3.11 and **pandas only** at runtime. No TA libraries; calculations are vectorized (`groupby`, `agg`, `rolling`, `ewm`), with no row loops in the calculation code.
 
 ## Quick start
 
-Requires Python 3.11.
+Requires Python 3.11 or newer.
 
 ```bash
 # 1. Create and activate a virtual environment
@@ -48,7 +48,7 @@ flowchart LR
     G --> H[("output/<br/>result_SYMBOL.csv x10")]
 ```
 
-Only `loader.py` reads files and only `writer.py` writes files. `resample.py`, `indicators.py`, `pipeline.py` and `validate.py` are pure: DataFrames in, DataFrames out. All 10 frames are built and validated before any file is written.
+Only `loader.py` reads files and only `writer.py` writes files. `resample.py`, `indicators.py`, `pipeline.py` and `validate.py` are pure: DataFrames in, DataFrames out. `pipeline.py` holds the pure per-ticker build functions plus the run_pipeline orchestrator, which calls the loader and writer.All 10 frames are built and validated before any file is written.
 
 ## Project layout
 
@@ -124,7 +124,7 @@ Values are written with 4 decimal places; NaN is written as an empty cell.
 - **Explicit sort before any `first`/`last`/`rolling`.** The input file is shuffled (not ordered by date or ticker). `first` and `last` are positional, so skipping the sort would silently produce wrong Open/Close values.
 - **Per-ticker isolation.** Rolling and EWM run inside a per-ticker loop (10 iterations). A rolling window on the stacked frame would leak one ticker's tail into the next ticker's head.
 - **Rounding only at write time.** Input prices carry float32 noise (for example `59.630001068115234`); calculations use full precision.
-- **Fail loudly, no silent fixes.** Bad input raises an error naming the ticker, month or column; nothing is dropped or coerced.
+- **Fail loudly** Bad input raises an error naming the column or offending rows where possible, and nothing is dropped. The only normalization is trimming and uppercasing ticker symbols.
 - **Atomic output.** Frames are validated first, then each CSV is staged and moved into place, so a failure never leaves a half-written `output/`.
 
 ## Validation
