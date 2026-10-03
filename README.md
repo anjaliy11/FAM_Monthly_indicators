@@ -10,8 +10,18 @@ Transforms daily stock prices (10 tickers, 2018-2019) into monthly OHLC bars wit
 
 ## Quick start
 
+Requires Python 3.11.
+
 ```bash
+# 1. Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate          # macOS / Linux
+.venv\Scripts\activate             # Windows (PowerShell / cmd)
+
+# 2. Install the runtime dependency (pandas)
 pip install -r requirements.txt
+
+# 3. Run the pipeline
 python main.py
 ```
 
