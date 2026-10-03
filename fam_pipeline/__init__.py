@@ -1,0 +1,1 @@
+"""Monthly OHLC indicator pipeline."""
